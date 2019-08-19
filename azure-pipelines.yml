@@ -8,9 +8,9 @@ jobs:
         Mac:
           osName: 'macos'
           imageName: 'macos-10.13'
-        Windows:
-          osName: 'Windows'
-          imageName: 'vs2017-win2016'
+        # Windows:
+        #   osName: 'Windows'
+        #   imageName: 'vs2017-win2016'
     
     pool:
       vmImage: $(imageName)
@@ -23,3 +23,16 @@ jobs:
           filePath: 'build_$(osName).sh'
       - publish: src
         artifact: '$(osName)Native'
+
+  - job: Windows
+    displayName: SQLite Windows
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+      - checkout: self
+      - bash: ./get_source.sh
+      - script: |
+          "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\Tools\VsDevCmd.bat"
+          cd src
+          cl sqlite3.c -link -dll -out:sqlite3.dll
+      - bash: file src/sqlite3.dll
