@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 YEAR=2015
 VERSION=3090200
 curl --output sqlite.zip http://www.sqlite.org/${YEAR}/sqlite-amalgamation-${VERSION}.zip

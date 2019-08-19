@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 source get_source.sh
 cd src
 
