@@ -50,8 +50,8 @@ jobs:
         inputs:
           solution: 'net/SQLite.NET.2012.MSBuild.sln'
           configuration: 'Release'
-          msbuildArguments: '/p:DefineConstants=SQLITE_STANDARD /t:System_Data_SQLite_2012'
-      - publish: bin
+          msbuildArguments: '/p:DefineConstants=SQLITE_STANDARD /t:System_Data_SQLite_2012 /DEBUG:FULL'
+      - publish: net/bin
         artifact: 'System.Data.SQLite'
           
           
