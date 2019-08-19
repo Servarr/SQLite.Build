@@ -2,7 +2,7 @@
 
 YEAR=2015
 VERSION=3090200
-wget -O sqlite.zip http://www.sqlite.org/${YEAR}/sqlite-amalgamation-${VERSION}.zip
+curl --output sqlite.zip http://www.sqlite.org/${YEAR}/sqlite-amalgamation-${VERSION}.zip
 unzip sqlite.zip -d src
 mv src/**/* src
 
