@@ -2,5 +2,7 @@
 
 source get_source.sh
 cd src
-gcc -v -O2 -m32 ${SQLITE_OPTIONS} -shared sqlite3.c -o sqlite3.dll
+
+SQLITE_OPTIONS_WIN=${SQLITE_OPTIONS//-/\/}
+cl ${SQLITE_OPTIONS} sqlite3.c -link -dll -out:sqlite3.dll
 file sqlite3.dll
