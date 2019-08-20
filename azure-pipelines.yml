@@ -92,11 +92,10 @@ jobs:
      #     configuration: 'ReleaseManagedOnly'
      #     msbuildArguments: '/property:Platform=Win32'
       - task: BatchScript@1
-	      inputs:
-	        filename: net\\Setup\\build_net_standard_20.bat
-	        arguments: ReleaseManagedOnly
-	        modifyEnvironment: true
-	      displayName: 'Build.bat'
+        inputs:
+          filename: net\\Setup\\build_net_standard_20.bat
+          modifyEnvironment: true
+        displayName: 'Build.bat'
       - publish: net/bin
         artifact: 'System.Data.SQLite'
           
