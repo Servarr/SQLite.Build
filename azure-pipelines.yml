@@ -8,9 +8,9 @@ jobs:
         Mac:
           osName: 'macos'
           imageName: 'macos-10.13'
-        # Windows:
-        #   osName: 'Windows'
-        #   imageName: 'vs2017-win2016'
+        Windows:
+           osName: 'Windows'
+           imageName: 'vs2017-win2016'
     
     pool:
       vmImage: $(imageName)
