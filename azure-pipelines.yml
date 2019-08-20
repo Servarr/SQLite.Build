@@ -35,12 +35,12 @@ jobs:
       vmImage: 'vs2017-win2016'
     steps:
       - bash: ./get_system_data_sqlite.sh
-      - task: MSBuild@1
+      - task: DotNetCoreCLI@2
         inputs:
-          solution: 'net/SQLite.NET.2017.MSBuild.sln'
-          configuration: 'ReleaseManagedOnly'
-          msbuildArguments: '/t:System_Data_SQLite_2017 /p:UseInteropDll=false /p:UseSqliteStandard=true'
-      - publish: net/bin/2017/Release/bin
+          command: 'build'
+          projects: 'net/SQLite.NET.NetStandard20.MSBuild.sln'
+          arguments: '/p:Configuration=ReleaseManagedOnly /p:UseInteropDll=false /p:UseSqliteStandard=true'
+      - publish: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
         artifact: 'System.Data.SQLite'
           
           
