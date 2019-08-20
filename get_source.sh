@@ -5,7 +5,7 @@ set -e
 YEAR=2014
 VERSION=3080702
 curl --output sqlite.tar.gz http://www.sqlite.org/${YEAR}/sqlite-autoconf-${VERSION}.zip
-tar -xvzf sqlite.tar.gz -C src
+tar -xvf sqlite.tar.gz -C src
 mv src/**/* src
 
 SQLITE_OPTIONS="-DSQLITE_ENABLE_COLUMN_METADATA \
