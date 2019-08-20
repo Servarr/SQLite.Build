@@ -22,6 +22,7 @@ jobs:
           arguments: -no_logo
           modifyEnvironment: true
         displayName: 'VsDevCmd.bat'
+        condition: and(succeeded(), eq(variables['osName'], 'Windows'))
       - task: Bash@3
         displayName: Build
         inputs:
