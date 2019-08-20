@@ -5,7 +5,6 @@ set -e
 YEAR=2014
 VERSION=3080702
 curl --output sqlite.tar.gz http://www.sqlite.org/${YEAR}/sqlite-autoconf-${VERSION}.zip
-unzip sqlite.tar.gz -d src
 tar -xvzf sqlite.tar.gz -C src
 mv src/**/* src
 
