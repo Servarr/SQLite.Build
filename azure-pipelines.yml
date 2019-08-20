@@ -40,7 +40,7 @@ jobs:
           solution: 'net/SQLite.NET.2017.MSBuild.sln'
           configuration: 'ReleaseManagedOnly'
           msbuildArguments: '/t:System_Data_SQLite_2017 /p:UseInteropDll=false /p:UseSqliteStandard=true'
-      - publish: net/bin
+      - publish: net/bin/2017/Release/bin
         artifact: 'System.Data.SQLite'
           
           
