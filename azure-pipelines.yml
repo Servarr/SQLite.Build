@@ -16,6 +16,12 @@ jobs:
       vmImage: $(imageName)
     steps:
       - checkout: self
+      - task: BatchScript@1
+        inputs:
+          filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\Tools\\VsDevCmd.bat
+          arguments: -no_logo
+          modifyEnvironment: true
+        displayName: 'VsDevCmd.bat'
       - task: Bash@3
         displayName: Build
         inputs:
@@ -24,51 +30,52 @@ jobs:
       - publish: src
         artifact: '$(osName)Native'
 
-  - job: Windows
-    displayName: SQLite Windows
-    pool:
-      vmImage: 'vs2017-win2016'
-    steps:
-      - checkout: self
-      - bash: ./get_source.sh
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\Tools\VsDevCmd.bat"
-          cd src
-          cl sqlite3.c -link -dll -out:sqlite3.dll
-      - bash: file src/sqlite3.dll
+  # - job: Windows
+  #   displayName: SQLite Windows
+  #   pool:
+  #     vmImage: 'vs2017-win2016'
+  #   steps:
+  #     - checkout: self
+  #     - bash: ./get_source.sh
+  #     - script: |
+  #         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\Tools\VsDevCmd.bat"
+  #         cd src
+  #         cl sqlite3.c -link -dll -out:sqlite3.dll
+  #     - bash: file src/sqlite3.dll
 
-  - job: Windows_2
-    displayName: SQLite Windows 2
-    pool:
-      vmImage: 'vs2017-win2016'
-    steps:
-      - checkout: self
-      - bash: ./get_source.sh
-      - task: BatchScript@1
-        inputs:
-          filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\Tools\\VsDevCmd.bat
-          arguments: -no_logo
-          modifyEnvironment: true
-        displayName: 'VsDevCmd.bat'
-      - script: |
-          cd src
-          dir
-          cl sqlite3.c -link -dll -out:sqlite3.dll
-      - bash: file src/sqlite3.dll
+  # - job: Windows_2
+  #   displayName: SQLite Windows 2
+  #   pool:
+  #     vmImage: 'vs2017-win2016'
+  #   steps:
+  #     - checkout: self
+  #     - bash: ./get_source.sh
+  #     - task: BatchScript@1
+  #       inputs:
+  #         filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\Tools\\VsDevCmd.bat
+  #         arguments: -no_logo
+  #         modifyEnvironment: true
+  #       displayName: 'VsDevCmd.bat'
+  #       condition: and(succeeded(), eq(variables['osName'], 'Windows'))
+  #     - script: |
+  #         cd src
+  #         dir
+  #         cl sqlite3.c -link -dll -out:sqlite3.dll
+  #     - bash: file src/sqlite3.dll
 
-  - job: Windows_3
-    displayName: SQLite Windows 3
-    pool:
-      vmImage: 'vs2017-win2016'
-    steps:
-      - checkout: self
-      - bash: ./get_source.sh
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cd src
-          dir
-          cl sqlite3.c -link -dll -out:sqlite3.dll
-      - bash: file src/sqlite3.dll
+  # - job: Windows_3
+  #   displayName: SQLite Windows 3
+  #   pool:
+  #     vmImage: 'vs2017-win2016'
+  #   steps:
+  #     - checkout: self
+  #     - bash: ./get_source.sh
+  #     - script: |
+  #         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+  #         cd src
+  #         dir
+  #         cl sqlite3.c -link -dll -out:sqlite3.dll
+  #     - bash: file src/sqlite3.dll
 
   - job: SystemDataSQLite
     pool:
