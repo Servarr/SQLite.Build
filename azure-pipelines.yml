@@ -63,19 +63,23 @@ jobs:
   #         cl sqlite3.c -link -dll -out:sqlite3.dll
   #     - bash: file src/sqlite3.dll
 
-  # - job: Windows_3
-  #   displayName: SQLite Windows 3
-  #   pool:
-  #     vmImage: 'vs2017-win2016'
-  #   steps:
-  #     - checkout: self
-  #     - bash: ./get_source.sh
-  #     - script: |
-  #         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-  #         cd src
-  #         dir
-  #         cl sqlite3.c -link -dll -out:sqlite3.dll
-  #     - bash: file src/sqlite3.dll
+  - job: Windows_3
+    displayName: SQLite Windows 3
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+      - checkout: self
+      - bash: ./get_source.sh
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          cd src
+          cd tea
+          cd win
+          dir
+          nmake -f makefile.vc all
+          dir
+      - publish: src
+        artifact: 'WindowsAutoConf'
 
   - job: SystemDataSQLite
     pool:
@@ -88,9 +92,9 @@ jobs:
           unzip system.data.sqlite.zip
       - task: MSBuild@1
         inputs:
-          solution: 'net/SQLite.NET.2012.MSBuild.sln'
+          solution: 'net/SQLite.NET.2013.MSBuild.sln'
           configuration: 'Release'
-          msbuildArguments: '/p:DefineConstants=SQLITE_STANDARD /t:System_Data_SQLite_2012'
+          msbuildArguments: '/p:DefineConstants=SQLITE_STANDARD /t:System_Data_SQLite_2013'
       - publish: net/bin
         artifact: 'System.Data.SQLite'
           
