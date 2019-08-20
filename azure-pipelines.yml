@@ -73,10 +73,8 @@ jobs:
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           cd src
-          cd tea
-          cd win
           dir
-          nmake -f makefile.vc all
+          nmake /f makefile.msc
           dir
       - publish: src
         artifact: 'WindowsAutoConf'

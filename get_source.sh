@@ -2,8 +2,8 @@
 
 set -e
 
-YEAR=2014
-VERSION=3080702
+YEAR=2019
+VERSION=3290000
 curl --output sqlite.tar.gz http://www.sqlite.org/${YEAR}/sqlite-autoconf-${VERSION}.tar.gz
 file sqlite.tar.gz
 mkdir src
