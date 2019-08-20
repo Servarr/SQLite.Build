@@ -32,7 +32,7 @@ jobs:
       - checkout: self
       - bash: ./get_source.sh
       - script: |
-          "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\Tools\VsDevCmd.bat"
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\Tools\VsDevCmd.bat"
           cd src
           cl sqlite3.c -link -dll -out:sqlite3.dll
       - bash: file src/sqlite3.dll
