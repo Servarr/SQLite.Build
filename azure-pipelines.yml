@@ -89,7 +89,7 @@ jobs:
       - task: MSBuild@1
         inputs:
           solution: 'net/SQLite.NET.2017.MSBuild.sln'
-          configuration: 'ReleaseNativeOnly'
+          configuration: 'ReleaseManagedOnly'
           msbuildArguments: '/property:Platform=Win32'
       - publish: net/bin
         artifact: 'System.Data.SQLite'
