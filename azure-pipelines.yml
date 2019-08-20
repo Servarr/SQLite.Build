@@ -85,7 +85,7 @@ jobs:
       - bash: |
           mkdir net
           cd net
-          curl --output system.data.sqlite.zip "https://system.data.sqlite.org/blobs/1.0.84.0/sqlite-netFx-source-1.0.84.0.zip"
+          curl --output system.data.sqlite.zip "https://system.data.sqlite.org/blobs/1.0.94.0/sqlite-netFx-source-1.0.94.0.zip"
           unzip system.data.sqlite.zip
       - task: MSBuild@1
         inputs:
