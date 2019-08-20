@@ -87,14 +87,17 @@ jobs:
           curl --output system.data.sqlite.zip "https://system.data.sqlite.org/blobs/1.0.111.0/sqlite-netFx-source-1.0.111.0.zip"
           unzip system.data.sqlite.zip
       - script: |
+          cd net
           cd setup
+          dir
           call "build.bat ReleaseManagedOnly"
-      # - task: MSBuild@1
+      # - task: BatchScript@1
       #   inputs:
-      #     solution: 'net/SQLite.NET.2017.MSBuild.sln'
-      #     configuration: 'Release'
-      #     msbuildArguments: '/p:DefineConstants=SQLITE_STANDARD /t:System_Data_SQLite_2017'
-      - publish: ./
+      #     filename: net\\Setup\\build.bat
+      #     arguments: ReleaseManagedOnly
+      #     modifyEnvironment: true
+      #   displayName: 'Build.bat'
+      - publish: net
         artifact: 'System.Data.SQLite'
           
           
