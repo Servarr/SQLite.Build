@@ -2,12 +2,10 @@
 
 set -e
 
-YEAR=2019
-VERSION=3290000
-curl --output sqlite.tar.gz http://www.sqlite.org/${YEAR}/sqlite-autoconf-${VERSION}.tar.gz
-file sqlite.tar.gz
-mkdir src
-tar -xvzf sqlite.tar.gz -C src
+YEAR=2014
+VERSION=3080702
+curl --output sqlite.zip http://www.sqlite.org/${YEAR}/sqlite-amalgamation-${VERSION}.zip
+unzip sqlite.zip -d src
 mv src/**/* src
 
 SQLITE_OPTIONS="-DSQLITE_ENABLE_COLUMN_METADATA \
