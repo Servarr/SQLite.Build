@@ -37,7 +37,7 @@ jobs:
           cl sqlite3.c -link -dll -out:sqlite3.dll
       - bash: file src/sqlite3.dll
 
-  - job: Windows
+  - job: Windows 2
     displayName: SQLite Windows 2
     pool:
       vmImage: 'vs2017-win2016'
@@ -56,7 +56,7 @@ jobs:
           cl sqlite3.c -link -dll -out:sqlite3.dll
       - bash: file src/sqlite3.dll
 
-  - job: Windows
+  - job: Windows 3
     displayName: SQLite Windows 3
     pool:
       vmImage: 'vs2017-win2016'
