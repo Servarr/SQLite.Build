@@ -30,67 +30,16 @@ jobs:
       - publish: src
         artifact: '$(osName)Native'
 
-  # - job: Windows
-  #   displayName: SQLite Windows
-  #   pool:
-  #     vmImage: 'vs2017-win2016'
-  #   steps:
-  #     - checkout: self
-  #     - bash: ./get_source.sh
-  #     - script: |
-  #         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\Tools\VsDevCmd.bat"
-  #         cd src
-  #         cl sqlite3.c -link -dll -out:sqlite3.dll
-  #     - bash: file src/sqlite3.dll
-
-  # - job: Windows_2
-  #   displayName: SQLite Windows 2
-  #   pool:
-  #     vmImage: 'vs2017-win2016'
-  #   steps:
-  #     - checkout: self
-  #     - bash: ./get_source.sh
-  #     - task: BatchScript@1
-  #       inputs:
-  #         filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\Tools\\VsDevCmd.bat
-  #         arguments: -no_logo
-  #         modifyEnvironment: true
-  #       displayName: 'VsDevCmd.bat'
-  #       condition: and(succeeded(), eq(variables['osName'], 'Windows'))
-  #     - script: |
-  #         cd src
-  #         dir
-  #         cl sqlite3.c -link -dll -out:sqlite3.dll
-  #     - bash: file src/sqlite3.dll
-
-  # - job: Windows_3
-  #   displayName: SQLite Windows Default Autoconf
-  #   pool:
-  #     vmImage: 'vs2017-win2016'
-  #   steps:
-  #     - checkout: self
-  #     - bash: ./get_source.sh
-  #     - script: |
-  #         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-  #         cd src
-  #         nmake /f makefile.msc
-  #     - publish: src
-  #       artifact: 'WindowsAutoConf'
-
   - job: SystemDataSQLite
     pool:
       vmImage: 'vs2017-win2016'
     steps:
-      - bash: |
-          mkdir net
-          cd net
-          curl --output system.data.sqlite.zip "https://system.data.sqlite.org/blobs/1.0.94.0/sqlite-netFx-source-1.0.94.0.zip"
-          unzip system.data.sqlite.zip
+      - bash: ./get_system_data_sqlite.sh
       - task: MSBuild@1
         inputs:
-          solution: 'net/SQLite.NET.2013.MSBuild.sln'
+          solution: 'net/SQLite.NET.2017.MSBuild.sln'
           configuration: 'ReleaseManagedOnly'
-          msbuildArguments: '/t:System_Data_SQLite_2013 /p:UseInteropDll=false /p:UseSqliteStandard=true'
+          msbuildArguments: '/t:System_Data_SQLite_2017 /p:UseInteropDll=false /p:UseSqliteStandard=true'
       - publish: net/bin
         artifact: 'System.Data.SQLite'
           
