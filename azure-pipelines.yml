@@ -27,6 +27,11 @@ jobs:
         inputs:
           targetType: 'filePath'
           filePath: 'build_$(osName).sh'
+        condition: ne(variables['osName'], 'Windows')
+      - script: |
+          nmake /f makefile.msc
+          file sqlite3.dll
+          dumpbin /EXPORTS sqlite3.dll
       - publish: src
         artifact: '$(osName)Native'
 
