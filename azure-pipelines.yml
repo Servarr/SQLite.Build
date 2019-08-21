@@ -69,7 +69,6 @@ stages:
           buildType: 'current'
           artifactName: System.Data.SQLite
           targetPath: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
-          itemPattern: 'libsqlite3.0.dylib'
       - task: NuGetToolInstaller@0
       - bash: |
           ls -lR
