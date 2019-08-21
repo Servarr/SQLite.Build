@@ -22,7 +22,7 @@ jobs:
           modifyEnvironment: true
         displayName: 'VsDevCmd.bat'
         condition: and(succeeded(), eq(variables['osName'], 'Windows'))
-      - bash: get_sqlite.sh
+      - bash: ./get_sqlite.sh
       - task: Bash@3
         displayName: Build
         inputs:
