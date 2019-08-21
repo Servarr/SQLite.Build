@@ -22,6 +22,7 @@ jobs:
           modifyEnvironment: true
         displayName: 'VsDevCmd.bat'
         condition: and(succeeded(), eq(variables['osName'], 'Windows'))
+      - bash: get_sqlite.sh
       - task: Bash@3
         displayName: Build
         inputs:
@@ -29,6 +30,7 @@ jobs:
           filePath: 'build_$(osName).sh'
         condition: ne(variables['osName'], 'Windows')
       - script: |
+          cd src
           nmake /f makefile.msc
           file sqlite3.dll
           dumpbin /EXPORTS sqlite3.dll
