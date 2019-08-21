@@ -72,6 +72,16 @@ stages:
       - task: NuGetToolInstaller@0
       - bash: |
           ls -lR
-          nuget pack SQLite.Core.nuspec
+      - task: NuGetCommand@2
+        inputs:
+          command: 'pack'
+          packagesToPack: 'SQLite.Core.nuspec'
+          versioningScheme: 'off'
+      - task: NuGetCommand@2
+        inputs:
+          command: 'push'
+          packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+          nuGetFeedType: 'internal'
+          publishVstsFeed: '43582661-9ac3-4ec6-9583-209885d5ff34/5d856138-315d-4cf9-9209-fcb7e8943d81'
       - publish: System.Data.SQLite.Core.Lidarr.1.0.111.nupkg
         artifact: System.Data.SQLite.Core.Lidarr
