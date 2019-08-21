@@ -1,46 +1,76 @@
-jobs:
-  - job: SQLite
-    strategy:
-      matrix:
-        Linux:
-          osName: 'linux'
-          imageName: 'ubuntu-16.04'
-        Mac:
-          osName: 'macos'
-          imageName: 'macos-10.13'
-        Windows:
-           osName: 'Windows'
-           imageName: 'vs2017-win2016'
-    
-    pool:
-      vmImage: $(imageName)
-    steps:
-      - checkout: self
-      - task: BatchScript@1
-        inputs:
-          filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\VC\\Auxiliary\\Build\\vcvars32.bat
-          modifyEnvironment: true
-        displayName: 'VsDevCmd.bat'
-        condition: and(succeeded(), eq(variables['osName'], 'Windows'))
-      - task: Bash@3
-        displayName: Build
-        inputs:
-          targetType: 'filePath'
-          filePath: 'build_$(osName).sh'
-      - publish: src
-        artifact: '$(osName)Native'
+stages:
+  - stage: Build
+    jobs:
+    - job: SQLite
+      strategy:
+        matrix:
+          Linux:
+            osName: 'linux'
+            imageName: 'ubuntu-16.04'
+          Mac:
+            osName: 'macos'
+            imageName: 'macos-10.13'
+          Windows:
+             osName: 'windows'
+             imageName: 'vs2017-win2016'
 
-  - job: SystemDataSQLite
-    pool:
-      vmImage: 'vs2017-win2016'
-    steps:
-      - bash: ./get_system_data_sqlite.sh
-      - task: DotNetCoreCLI@2
-        inputs:
-          command: 'build'
-          projects: 'net/SQLite.NET.NetStandard20.MSBuild.sln'
-          arguments: '/p:Configuration=ReleaseManagedOnly /p:UseInteropDll=false /p:UseSqliteStandard=true'
-      - publish: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
-        artifact: 'System.Data.SQLite'
-          
-          
+      pool:
+        vmImage: $(imageName)
+      steps:
+        - checkout: self
+        - task: BatchScript@1
+          inputs:
+            filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\VC\\Auxiliary\\Build\\vcvars32.bat
+            modifyEnvironment: true
+          displayName: 'VsDevCmd.bat'
+          condition: and(succeeded(), eq(variables['osName'], 'windows'))
+        - task: Bash@3
+          displayName: Build
+          inputs:
+            targetType: 'filePath'
+            filePath: 'build_$(osName).sh'
+        - publish: src
+          artifact: '$(osName)_native'
+
+    - job: SystemDataSQLite
+      pool:
+        vmImage: 'vs2017-win2016'
+      steps:
+        - bash: ./get_system_data_sqlite.sh
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'build'
+            projects: 'net/SQLite.NET.NetStandard20.MSBuild.sln'
+            arguments: '/p:Configuration=ReleaseManagedOnly /p:UseInteropDll=false /p:UseSqliteStandard=true'
+        - publish: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
+          artifact: 'System.Data.SQLite'
+
+  - stage: Package
+
+    jobs:
+    - job: Nuget
+      pool:
+        vmImage: 'vs2017-win2016'
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: windows_native
+        targetPath: artifact/win-x86
+        itemPattern: 'sqlite3.dll'
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: macos_native
+        targetPath: artifact/osx-x64
+        itemPattern: 'libsqlite3.0.dylib'
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: System.Data.SQLite
+        targetPath: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
+        itemPattern: 'libsqlite3.0.dylib'
+    - bash: |
+        ls -lR
+        nuget pack SQLite.Core.nuspec
+    - publish: System.Data.SQLite.Core.Lidarr.1.0.111.nupkg
+      artifact: System.Data.SQLite.Core.Lidarr
