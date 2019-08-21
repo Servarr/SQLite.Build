@@ -11,7 +11,7 @@
   <metadata>
     <id>System.Data.SQLite.Core.Lidarr</id>
     <title>System.Data.SQLite Core (x86/x64 native)</title>
-    <version>1.0.111.0</version>
+    <version>1.0.111.0-1</version>
     <authors>SQLite Development Team</authors>
     <description>The official SQLite database engine for both x86 and x64 along with the ADO.NET provider.</description>
     <language>en-US</language>
@@ -27,7 +27,7 @@
   <files>
     <file src="net\bin\NetStandard20\ReleaseNetStandard20\bin\netstandard2.0\System.Data.SQLite.dll" target="lib\netstandard2.0" />
     <file src="net\bin\NetStandard20\ReleaseNetStandard20\bin\netstandard2.0\System.Data.SQLite.xml" target="lib\netstandard2.0" />
-    <file src="artifact\win-x86\sqlite3.dll" target="runtimes\win-x86\native\netstandard2.0" />
-    <file src="artifact\osx-x64\libsqlite3.0.dylib" target="runtimes\osx-x64\native\netstandard2.0" />
+    <file src="artifact\win-x86\sqlite3.dll" target="runtimes\any\native\netstandard2.0" />
+    <file src="artifact\osx-x64\libsqlite3.0.dylib" target="runtimes\any\native\netstandard2.0" />
   </files>
 </package>
