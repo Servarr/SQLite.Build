@@ -51,26 +51,27 @@ stages:
     - job: Nuget
       pool:
         vmImage: 'vs2017-win2016'
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: windows_native
-        targetPath: artifact/win-x86
-        itemPattern: 'sqlite3.dll'
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: macos_native
-        targetPath: artifact/osx-x64
-        itemPattern: 'libsqlite3.0.dylib'
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: System.Data.SQLite
-        targetPath: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
-        itemPattern: 'libsqlite3.0.dylib'
-    - bash: |
-        ls -lR
-        nuget pack SQLite.Core.nuspec
-    - publish: System.Data.SQLite.Core.Lidarr.1.0.111.nupkg
-      artifact: System.Data.SQLite.Core.Lidarr
+      steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: windows_native
+          targetPath: artifact/win-x86
+          itemPattern: 'sqlite3.dll'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: macos_native
+          targetPath: artifact/osx-x64
+          itemPattern: 'libsqlite3.0.dylib'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: System.Data.SQLite
+          targetPath: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
+          itemPattern: 'libsqlite3.0.dylib'
+      - bash: |
+          ls -lR
+          nuget pack SQLite.Core.nuspec
+      - publish: System.Data.SQLite.Core.Lidarr.1.0.111.nupkg
+        artifact: System.Data.SQLite.Core.Lidarr
