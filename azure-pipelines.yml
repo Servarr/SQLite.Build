@@ -41,7 +41,7 @@ stages:
           inputs:
             solution: 'net/SQLite.NET.2015.MSBuild.sln'
             configuration: 'ReleaseManagedOnly'
-            msbuildArguments: '/p:UseInteropDll=false /p:UseSqliteStandard=true'
+            msbuildArguments: '/t:System_Data_SQLite_2015 /p:UseInteropDll=false /p:UseSqliteStandard=true'
         - publish: net/bin
           artifact: 'System.Data.SQLite'
 
