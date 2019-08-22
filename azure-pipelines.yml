@@ -37,12 +37,12 @@ stages:
         vmImage: 'vs2017-win2016'
       steps:
         - bash: ./get_system_data_sqlite.sh
-        - task: DotNetCoreCLI@2
+        - task: MSBuild@1
           inputs:
-            command: 'build'
-            projects: 'net/SQLite.NET.NetStandard20.MSBuild.sln'
-            arguments: '/p:Configuration=ReleaseManagedOnly /p:UseInteropDll=false /p:UseSqliteStandard=true'
-        - publish: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
+            solution: 'net/SQLite.NET.2015.MSBuild.sln'
+            configuration: 'ReleaseManagedOnly'
+            msbuildArguments: '/p:UseInteropDll=false /p:UseSqliteStandard=true'
+        - publish: net/bin
           artifact: 'System.Data.SQLite'
 
   - stage: Package
@@ -78,8 +78,11 @@ stages:
           packagesToPack: 'SQLite.Core.nuspec'
           versioningScheme: 'off'
       - task: NuGetCommand@2
+        enabled: false
         inputs:
           command: 'push'
           packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
           nuGetFeedType: 'internal'
           publishVstsFeed: '43582661-9ac3-4ec6-9583-209885d5ff34/5d856138-315d-4cf9-9209-fcb7e8943d81'
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: NugetPackage
