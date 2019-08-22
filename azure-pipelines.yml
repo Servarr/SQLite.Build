@@ -77,7 +77,7 @@ stages:
           packagesToPack: 'SQLite.Core.nuspec'
           versioningScheme: 'off'
       - task: NuGetCommand@2
-        enabled: false
+        enabled: true
         inputs:
           command: 'push'
           packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
