@@ -56,19 +56,18 @@ stages:
         inputs:
           buildType: 'current'
           artifactName: windows_native
-          targetPath: artifact/win-x86
-          itemPattern: 'sqlite3.dll'
+          targetPath: artifact
       - task: DownloadPipelineArtifact@2
         inputs:
           buildType: 'current'
           artifactName: macos_native
           targetPath: artifact/osx-x64
-          itemPattern: 'libsqlite3.0.dylib'
+          itemPattern: 'libsqlite3.dylib'
       - task: DownloadPipelineArtifact@2
         inputs:
           buildType: 'current'
           artifactName: System.Data.SQLite
-          targetPath: net/bin/NetStandard20/ReleaseNetStandard20/bin/netstandard2.0
+          targetPath: net/bin
       - task: NuGetToolInstaller@0
       - bash: |
           ls -lR
