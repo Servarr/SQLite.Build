@@ -3,7 +3,7 @@
 set -e
 
 YEAR=2019
-VERSION=3280000
+VERSION=3300100
 curl --output sqlite.zip http://www.sqlite.org/${YEAR}/sqlite-amalgamation-${VERSION}.zip
 unzip sqlite.zip -d src
 mv src/**/* src
