@@ -9,7 +9,7 @@
 -->
 <package>
   <metadata>
-    <id>System.Data.SQLite.Core.Lidarr</id>
+    <id>System.Data.SQLite.Core.Servarr</id>
     <title>System.Data.SQLite Core (x86/x64 native)</title>
     <version>1.0.112.0-0</version>
     <authors>SQLite Development Team</authors>
