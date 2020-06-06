@@ -2,8 +2,8 @@
 
 set -e
 
-YEAR=2019
-VERSION=3300100
+YEAR=2020
+VERSION=3320100
 
 mkdir src
 
