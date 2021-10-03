@@ -2,8 +2,8 @@
 
 set -e
 
-YEAR=2020
-VERSION=3320100
+YEAR=2021
+VERSION=3360000
 curl --output sqlite.zip http://www.sqlite.org/${YEAR}/sqlite-amalgamation-${VERSION}.zip
 unzip sqlite.zip -d src
 mv src/**/* src
