@@ -46,29 +46,26 @@ stages:
     - job: SQLite
       strategy:
         matrix:
-          Linux:
+          linux-x64:
             osName: 'linux'
             imageName: 'ubuntu-20.04'
-          Mac:
+          osx-x64:
             osName: 'osx-x64'
             imageName: 'macos-11'
-          MacM1:
+          osx-arm64:
             osName: 'osx-arm64'
             imageName: 'macos-11'
-          Windows:
-             osName: 'windows'
+          win-x64:
+             osName: 'win-x64'
+             imageName: 'windows-2019'
+          win-x86:
+             osName: 'win-x86'
              imageName: 'windows-2019'
 
       pool:
         vmImage: $(imageName)
       steps:
         - checkout: self
-        - task: BatchScript@1
-          inputs:
-            filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvars32.bat
-            modifyEnvironment: true
-          displayName: 'VsDevCmd.bat'
-          condition: and(succeeded(), eq(variables['osName'], 'windows'))
         - bash: ./build_$(osName).sh
           env:
             YEAR: ${{ parameters.sqliteYear }}
@@ -108,8 +105,15 @@ stages:
       - task: DownloadPipelineArtifact@2
         inputs:
           buildType: 'current'
-          artifactName: windows_native
-          targetPath: artifact
+          artifactName: win-x64_native
+          targetPath: artifact/win-x64
+          itemPattern: 'sqlite3.dll'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: win-x86_native
+          targetPath: artifact/win-x86
+          itemPattern: 'sqlite3.dll'
       - task: DownloadPipelineArtifact@2
         inputs:
           buildType: 'current'
