@@ -1,7 +1,19 @@
+parameters:
+- name: sqliteYear
+  displayName: Year of sqlite build
+  type: number
+  default: 2021
+- name: sqliteVersion
+  displayName: Sqlite version number
+  type: number
+  default: 3360000
+- name: systemDataSqliteVersion
+  displayName: System.Data.Sqlite version number
+  type: string
+  default: 1.0.115.0
+
 variables:
-  systemDataSqliteVersion: '1.0.115.0'
   minorVersion: $[counter('minorVersion', 1)]
-  nugetVersion: '$(systemDataSqliteVersion)-$(minorVersion)'
 
 trigger:
   branches:
@@ -23,7 +35,9 @@ stages:
           vmImage: 'ubuntu-20.04'
         steps:
           # Set the build name properly.  The 'name' property won't recursively expand so hack here:
-          - bash: echo "##vso[build.updatebuildnumber]$NUGETVERSION"
+          - bash: |
+              NUGETVERSION="${{ parameters.systemDataSqliteVersion}}-$MINORVERSION"
+              echo "##vso[build.updatebuildnumber]$NUGETVERSION"
             displayName: Set Build Name
 
   - stage: Build
@@ -55,11 +69,11 @@ stages:
             modifyEnvironment: true
           displayName: 'VsDevCmd.bat'
           condition: and(succeeded(), eq(variables['osName'], 'windows'))
-        - task: Bash@3
+        - bash: ./build_$(osName).sh
+          env:
+            YEAR: ${{ parameters.sqliteYear }}
+            VERSION: ${{ parameters.sqliteVersion }}
           displayName: Build
-          inputs:
-            targetType: 'filePath'
-            filePath: 'build_$(osName).sh'
         - publish: src
           artifact: '$(osName)_native'
 
@@ -67,7 +81,7 @@ stages:
       pool:
         vmImage: 'windows-2019'
       steps:
-        - bash: ./get_system_data_sqlite.sh $SYSTEMDATASQLITEVERSION
+        - bash: ./get_system_data_sqlite.sh ${{ parameters.systemDataSqliteVersion }}
         - task: MSBuild@1
           displayName: .NET 4.6.1
           inputs:
@@ -114,6 +128,8 @@ stages:
           artifactName: System.Data.SQLite
           targetPath: net/bin
       - bash: |
+          NUGETVERSION="${{ parameters.systemDataSqliteVersion}}-$MINORVERSION"
+          echo $NUGETVERSION
           sed -i'' -e "s/<version>[0-9.*]\+<\/version>/<version>${NUGETVERSION}<\/version>/g" SQLite.Core.nuspec
       - task: NuGetToolInstaller@0
       - bash: |
