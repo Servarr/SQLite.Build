@@ -1,18 +1,49 @@
+variables:
+  systemDataSqliteVersion: '1.0.115.0'
+  minorVersion: $[counter('minorVersion', 1)]
+  nugetVersion: '$(systemDataSqliteVersion)-$(minorVersion)'
+
+trigger:
+  branches:
+    include:
+    - master
+
+pr:
+  branches:
+    include:
+    - master
+
 stages:
+  - stage: Setup
+    displayName: Setup
+    jobs:
+      - job:
+        displayName: Build Variables
+        pool:
+          vmImage: 'ubuntu-20.04'
+        steps:
+          # Set the build name properly.  The 'name' property won't recursively expand so hack here:
+          - bash: echo "##vso[build.updatebuildnumber]$NUGETVERSION"
+            displayName: Set Build Name
+
   - stage: Build
+    dependsOn: []
     jobs:
     - job: SQLite
       strategy:
         matrix:
           Linux:
             osName: 'linux'
-            imageName: 'ubuntu-16.04'
+            imageName: 'ubuntu-20.04'
           Mac:
-            osName: 'macos'
-            imageName: 'macos-10.14'
+            osName: 'osx-x64'
+            imageName: 'macos-11'
+          MacM1:
+            osName: 'osx-arm64'
+            imageName: 'macos-11'
           Windows:
              osName: 'windows'
-             imageName: 'vs2017-win2016'
+             imageName: 'windows-2019'
 
       pool:
         vmImage: $(imageName)
@@ -20,7 +51,7 @@ stages:
         - checkout: self
         - task: BatchScript@1
           inputs:
-            filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\VC\\Auxiliary\\Build\\vcvars32.bat
+            filename: C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvars32.bat
             modifyEnvironment: true
           displayName: 'VsDevCmd.bat'
           condition: and(succeeded(), eq(variables['osName'], 'windows'))
@@ -34,9 +65,9 @@ stages:
 
     - job: SystemDataSQLite
       pool:
-        vmImage: 'vs2017-win2016'
+        vmImage: 'windows-2019'
       steps:
-        - bash: ./get_system_data_sqlite.sh
+        - bash: ./get_system_data_sqlite.sh $SYSTEMDATASQLITEVERSION
         - task: MSBuild@1
           displayName: .NET 4.6.1
           inputs:
@@ -54,11 +85,11 @@ stages:
           artifact: 'System.Data.SQLite'
 
   - stage: Package
-
+    dependsOn: Build
     jobs:
     - job: Nuget
       pool:
-        vmImage: 'vs2017-win2016'
+        vmImage: 'windows-2019'
       steps:
       - task: DownloadPipelineArtifact@2
         inputs:
@@ -68,14 +99,22 @@ stages:
       - task: DownloadPipelineArtifact@2
         inputs:
           buildType: 'current'
-          artifactName: macos_native
+          artifactName: osx-x64_native
           targetPath: artifact/osx-x64
+          itemPattern: 'libsqlite3.dylib'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: osx-arm64_native
+          targetPath: artifact/osx-arm64
           itemPattern: 'libsqlite3.dylib'
       - task: DownloadPipelineArtifact@2
         inputs:
           buildType: 'current'
           artifactName: System.Data.SQLite
           targetPath: net/bin
+      - bash: |
+          sed -i'' -e "s/<version>[0-9.*]\+<\/version>/<version>${NUGETVERSION}<\/version>/g" SQLite.Core.nuspec
       - task: NuGetToolInstaller@0
       - bash: |
           ls -lR
@@ -84,6 +123,8 @@ stages:
           command: 'pack'
           packagesToPack: 'SQLite.Core.nuspec'
           versioningScheme: 'off'
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: NugetPackage
       - task: NuGetCommand@2
         enabled: true
         inputs:
@@ -91,5 +132,4 @@ stages:
           packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
           nuGetFeedType: 'internal'
           publishVstsFeed: '7ab38f4e-5a57-4d70-84f4-94dd9bc5d6df/f762697f-09fa-4960-89a1-64e48069bf6a'
-      - publish: $(Build.ArtifactStagingDirectory)
-        artifact: NugetPackage
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
