@@ -134,7 +134,7 @@ stages:
       - bash: |
           NUGETVERSION="${{ parameters.systemDataSqliteVersion}}-$MINORVERSION"
           echo $NUGETVERSION
-          sed -i'' -e "s/<version>[0-9.*]\+<\/version>/<version>${NUGETVERSION}<\/version>/g" SQLite.Core.nuspec
+          sed -i'' -e "s/<version>[0-9.*-]\+<\/version>/<version>${NUGETVERSION}<\/version>/g" SQLite.Core.nuspec
       - task: NuGetToolInstaller@0
       - bash: |
           ls -lR
