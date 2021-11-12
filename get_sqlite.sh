@@ -2,9 +2,9 @@
 
 set -e
 
-YEAR=2021
-VERSION=3360000
-curl --output sqlite.zip http://www.sqlite.org/${YEAR}/sqlite-amalgamation-${VERSION}.zip
+URL="http://www.sqlite.org/${YEAR}/sqlite-amalgamation-${VERSION}.zip"
+echo "$URL"
+curl --output sqlite.zip "$URL"
 unzip sqlite.zip -d src
 mv src/**/* src
 
