@@ -1,0 +1,199 @@
+diff -ur net/System.Data.SQLite/SQLite3.cs net_patched/System.Data.SQLite/SQLite3.cs
+--- net/System.Data.SQLite/SQLite3.cs	2021-07-28 01:10:44.000000000 +0100
++++ net_patched/System.Data.SQLite/SQLite3.cs	2021-11-26 19:28:10.742042591 +0000
+@@ -842,8 +842,24 @@
+ 
+     internal static SQLiteErrorCode StaticSetMemoryStatus(bool value)
+     {
+-        SQLiteErrorCode rc = UnsafeNativeMethods.sqlite3_config_int(
+-            SQLiteConfigOpsEnum.SQLITE_CONFIG_MEMSTATUS, value ? 1 : 0);
++        SQLiteErrorCode rc;
++
++        bool isArm64 = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 &&
++            RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
++
++        if (isArm64)
++        {
++            rc = UnsafeNativeMethods.sqlite3_config_int_arm64(
++                SQLiteConfigOpsEnum.SQLITE_CONFIG_MEMSTATUS,
++                IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero,
++                value ? 1 : 0);
++        }
++        else
++        {
++            rc = UnsafeNativeMethods.sqlite3_config_int(
++                SQLiteConfigOpsEnum.SQLITE_CONFIG_MEMSTATUS,
++                value ? 1 : 0);
++        }
+ 
+         return rc;
+     }
+@@ -3102,6 +3118,9 @@
+                 GetConfigDbOpsNames()));
+         }
+ 
++        bool isArm64 = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 &&
++            RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
++
+         switch (option)
+         {
+             case SQLiteConfigDbOpsEnum.SQLITE_DBCONFIG_NONE: // nil
+@@ -3139,8 +3158,19 @@
+                                 "cannot allocate database name");
+                         }
+ 
+-                        rc = UnsafeNativeMethods.sqlite3_db_config_charptr(
+-                            _sql, option, pDbName);
++                        if (isArm64)
++                        {
++                            rc = UnsafeNativeMethods.sqlite3_db_config_charptr_arm64(
++                                _sql, option,
++                                IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero,
++                                pDbName);
++                        }
++                        else
++                        {
++                            rc = UnsafeNativeMethods.sqlite3_db_config_charptr(
++                                _sql, option,
++                                pDbName);
++                        }
+ 
+                         if (rc == SQLiteErrorCode.Ok)
+                         {
+@@ -3198,8 +3228,20 @@
+                             typeof(int)));
+                     }
+ 
+-                    return UnsafeNativeMethods.sqlite3_db_config_intptr_two_ints(
+-                        _sql, option, (IntPtr)array[0], (int)array[1], (int)array[2]);
++                    if (isArm64)
++                    {
++                        return UnsafeNativeMethods.sqlite3_db_config_intptr_two_ints_arm64(
++                            _sql, option,
++                            IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero,
++                            (IntPtr)array[0], (int)array[1], (int)array[2]);
++                        
++                    }
++                    else
++                    {
++                        return UnsafeNativeMethods.sqlite3_db_config_intptr_two_ints(
++                            _sql, option,
++                            (IntPtr)array[0], (int)array[1], (int)array[2]);
++                    }
+                 }
+             case SQLiteConfigDbOpsEnum.SQLITE_DBCONFIG_ENABLE_FKEY: // int int*
+             case SQLiteConfigDbOpsEnum.SQLITE_DBCONFIG_ENABLE_TRIGGER: // int int*
+@@ -3228,8 +3270,20 @@
+ 
+                     int result = 0; /* NOT USED */
+ 
+-                    return UnsafeNativeMethods.sqlite3_db_config_int_refint(
+-                        _sql, option, ((bool)value ? 1 : 0), ref result);
++                    if (isArm64)
++                    {
++                        return UnsafeNativeMethods.sqlite3_db_config_int_refint_arm64(
++                            _sql, option,
++                            IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero,
++                            ((bool)value ? 1 : 0), ref result);
++                    }
++                    else
++                    {
++                        return UnsafeNativeMethods.sqlite3_db_config_int_refint(
++                            _sql, option,
++                            ((bool)value ? 1 : 0), ref result);
++                    }
++
+                 }
+             default:
+                 {
+@@ -3442,8 +3496,23 @@
+     /// <returns>Returns a result code</returns>
+     internal override SQLiteErrorCode SetLogCallback(SQLiteLogCallback func)
+     {
+-        SQLiteErrorCode rc = UnsafeNativeMethods.sqlite3_config_log(
+-            SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, func, IntPtr.Zero);
++        SQLiteErrorCode rc;
++
++        bool isArm64 = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 &&
++			RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
++
++        if (isArm64)
++        {
++            rc = UnsafeNativeMethods.sqlite3_config_log_arm64(
++                SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG,
++                IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero,
++                func, IntPtr.Zero);
++        }
++        else
++        {
++            rc = UnsafeNativeMethods.sqlite3_config_log(
++                SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, func, IntPtr.Zero);
++        }
+ 
+         if (rc == SQLiteErrorCode.Ok)
+         {
+diff -ur net/System.Data.SQLite/UnsafeNativeMethods.cs net_patched/System.Data.SQLite/UnsafeNativeMethods.cs
+--- net/System.Data.SQLite/UnsafeNativeMethods.cs	2021-11-26 18:35:39.680053796 +0000
++++ net_patched/System.Data.SQLite/UnsafeNativeMethods.cs	2021-11-26 19:21:50.557282791 +0000
+@@ -4464,9 +4464,23 @@
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config")]
+ #endif
++    internal static extern SQLiteErrorCode sqlite3_config_int_arm64(SQLiteConfigOpsEnum op, IntPtr nop1, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, int value);
++
++#if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config")]
++#endif
+     internal static extern SQLiteErrorCode sqlite3_config_log(SQLiteConfigOpsEnum op, SQLiteLogCallback func, IntPtr pvUser);
+ 
+ #if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config")]
++#endif
++    internal static extern SQLiteErrorCode sqlite3_config_log_arm64(SQLiteConfigOpsEnum op, IntPtr nop1, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, SQLiteLogCallback func, IntPtr pvUser);
++
++#if !PLATFORM_COMPACTFRAMEWORK
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
+@@ -4478,6 +4492,13 @@
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
+ #endif
++    internal static extern SQLiteErrorCode sqlite3_db_config_charptr_arm64(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr nop1, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr charPtr);
++
++#if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
++#endif
+     internal static extern SQLiteErrorCode sqlite3_db_config_int_refint(IntPtr db, SQLiteConfigDbOpsEnum op, int value, ref int result);
+ 
+ #if !PLATFORM_COMPACTFRAMEWORK
+@@ -4485,9 +4506,23 @@
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
+ #endif
++    internal static extern SQLiteErrorCode sqlite3_db_config_int_refint_arm64(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr nop1, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, int value, ref int result);
++
++#if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
++#endif
+     internal static extern SQLiteErrorCode sqlite3_db_config_intptr_two_ints(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr ptr, int int0, int int1);
+ 
+ #if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
++#endif
++    internal static extern SQLiteErrorCode sqlite3_db_config_intptr_two_ints_arm64(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr nop1, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr ptr, int int0, int int1);
++
++#if !PLATFORM_COMPACTFRAMEWORK
+     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
+ #else
+     [DllImport(SQLITE_DLL)]

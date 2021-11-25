@@ -10,7 +10,7 @@ parameters:
 - name: systemDataSqliteVersion
   displayName: System.Data.Sqlite version number
   type: string
-  default: 1.0.115.0
+  default: 1.0.115.5
 
 variables:
   minorVersion: $[counter('minorVersion', 1)]
