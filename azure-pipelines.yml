@@ -10,7 +10,7 @@ parameters:
 - name: systemDataSqliteVersion
   displayName: System.Data.Sqlite version number
   type: string
-  default: 1.0.115.0
+  default: 1.0.115.5
 
 variables:
   minorVersion: $[counter('minorVersion', 1)]
@@ -79,6 +79,10 @@ stages:
         vmImage: 'windows-2019'
       steps:
         - bash: ./get_system_data_sqlite.sh ${{ parameters.systemDataSqliteVersion }}
+        - task: NuGetCommand@2
+          inputs:
+            command: 'restore'
+            restoreSolution: 'net/SQLite.NET.2015.MSBuild.sln'
         - task: MSBuild@1
           displayName: .NET 4.6.1
           inputs:

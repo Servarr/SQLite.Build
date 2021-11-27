@@ -1,0 +1,158 @@
+diff -Naur net/System.Data.SQLite/System.Data.SQLite.2015.csproj net_patched/System.Data.SQLite/System.Data.SQLite.2015.csproj
+--- net/System.Data.SQLite/System.Data.SQLite.2015.csproj	2020-10-29 01:36:23.000000000 +0100
++++ net_patched/System.Data.SQLite/System.Data.SQLite.2015.csproj	2021-11-26 22:12:09.894389400 +0100
+@@ -42,6 +42,11 @@
+     <DefineConstants>TRACE</DefineConstants>
+     <ErrorReport>prompt</ErrorReport>
+   </PropertyGroup>
++  <ItemGroup>
++    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation">
++      <Version>4.3.0</Version>
++    </PackageReference>
++  </ItemGroup>
+   <Import Project="$(MSBuildProjectDirectory)\Targets\System.Data.SQLite.References.targets" />
+   <Import Project="$(MSBuildProjectDirectory)\Targets\System.Data.SQLite.Properties.targets" />
+   <Import Project="$(MSBuildProjectDirectory)\Targets\System.Data.SQLite.Files.targets" />
+diff -Naur net/System.Data.SQLite/UnsafeNativeMethods.cs net_patched/System.Data.SQLite/UnsafeNativeMethods.cs
+--- net/System.Data.SQLite/UnsafeNativeMethods.cs	2021-11-26 23:03:11.838609200 +0100
++++ net_patched/System.Data.SQLite/UnsafeNativeMethods.cs	2021-11-26 23:02:43.330195700 +0100
+@@ -4443,6 +4443,7 @@
+ #endif
+     internal static extern int sqlite3_limit(IntPtr db, SQLiteLimitOpsEnum op, int value);
+ 
++#region varargs stubs
+     // Since sqlite3_config() takes a variable argument list, we have to overload declarations
+     // for all possible calls that we want to use.
+ #if !PLATFORM_COMPACTFRAMEWORK
+@@ -4452,40 +4453,126 @@
+ #endif
+     internal static extern SQLiteErrorCode sqlite3_config_none(SQLiteConfigOpsEnum op);
+ 
++    internal static bool isArm64 = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 &&  System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
++
++    internal static SQLiteErrorCode sqlite3_config_int(SQLiteConfigOpsEnum op, int value)
++    {
++        if (isArm64)
++            return sqlite3_config_int_arm64(op, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, value);
++        else
++            return sqlite3_config_int_other(op, value);
++    }
++
++    internal static SQLiteErrorCode sqlite3_config_log(SQLiteConfigOpsEnum op, SQLiteLogCallback func, IntPtr pvUser)
++    {
++        if (isArm64)
++            return sqlite3_config_log_arm64(op, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, func, pvUser);
++        else
++            return sqlite3_config_log_other(op, func, pvUser);
++    }
++
++    internal static SQLiteErrorCode sqlite3_db_config_charptr(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr charPtr)
++    {
++        if (isArm64)
++            return sqlite3_db_config_charptr_arm64(db, op, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, charPtr);
++        else
++            return sqlite3_db_config_charptr_other(db, op, charPtr);
++    }
++
++    internal static SQLiteErrorCode sqlite3_db_config_int_refint(IntPtr db, SQLiteConfigDbOpsEnum op, int value, ref int result)
++    {
++        if (isArm64)
++            return sqlite3_db_config_int_refint_arm64(db, op, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, value, ref result);
++        else
++            return sqlite3_db_config_int_refint_other(db, op, value, ref result);
++    }
++
++    internal static SQLiteErrorCode sqlite3_db_config_intptr_two_ints(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr ptr, int int0, int int1)
++    {
++        if (isArm64)
++            return sqlite3_db_config_intptr_two_ints_arm64(db, op, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, ptr, int0, int1);
++        else
++            return sqlite3_db_config_intptr_two_ints_other(db, op, ptr, int0, int1);
++    }
++#endregion
++
++#region varargs stubs arm64 apple
++    // Since sqlite3_config() takes a variable argument list, we have to overload declarations
++    // for all possible calls that we want to use.
++#if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config")]
++#endif
++    internal static extern SQLiteErrorCode sqlite3_config_int_arm64(SQLiteConfigOpsEnum op, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, int value);
++
++#if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config")]
++#endif
++    internal static extern SQLiteErrorCode sqlite3_config_log_arm64(SQLiteConfigOpsEnum op, IntPtr nop2, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, SQLiteLogCallback func, IntPtr pvUser);
++
++#if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
++#endif
++    internal static extern SQLiteErrorCode sqlite3_db_config_charptr_arm64(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, IntPtr charPtr);
++
++#if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
++#endif
++    internal static extern SQLiteErrorCode sqlite3_db_config_int_refint_arm64(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, int value, ref int result);
++
++#if !PLATFORM_COMPACTFRAMEWORK
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
++#else
++    [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
++#endif
++    internal static extern SQLiteErrorCode sqlite3_db_config_intptr_two_ints_arm64(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr nop3, IntPtr nop4, IntPtr nop5, IntPtr nop6, IntPtr nop7, IntPtr nop8, IntPtr ptr, int int0, int int1);
++#endregion
++
++#region varargs stubs other
++    // Since sqlite3_config() takes a variable argument list, we have to overload declarations
++    // for all possible calls that we want to use.
+ #if !PLATFORM_COMPACTFRAMEWORK
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config", CallingConvention = CallingConvention.Cdecl)]
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config")]
+ #endif
+-    internal static extern SQLiteErrorCode sqlite3_config_int(SQLiteConfigOpsEnum op, int value);
++    internal static extern SQLiteErrorCode sqlite3_config_int_other(SQLiteConfigOpsEnum op, int value);
+ 
+ #if !PLATFORM_COMPACTFRAMEWORK
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config", CallingConvention = CallingConvention.Cdecl)]
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_config")]
+ #endif
+-    internal static extern SQLiteErrorCode sqlite3_config_log(SQLiteConfigOpsEnum op, SQLiteLogCallback func, IntPtr pvUser);
++    internal static extern SQLiteErrorCode sqlite3_config_log_other(SQLiteConfigOpsEnum op, SQLiteLogCallback func, IntPtr pvUser);
+ 
+ #if !PLATFORM_COMPACTFRAMEWORK
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
+ #endif
+-    internal static extern SQLiteErrorCode sqlite3_db_config_charptr(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr charPtr);
++    internal static extern SQLiteErrorCode sqlite3_db_config_charptr_other(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr charPtr);
+ 
+ #if !PLATFORM_COMPACTFRAMEWORK
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
+ #endif
+-    internal static extern SQLiteErrorCode sqlite3_db_config_int_refint(IntPtr db, SQLiteConfigDbOpsEnum op, int value, ref int result);
++    internal static extern SQLiteErrorCode sqlite3_db_config_int_refint_other(IntPtr db, SQLiteConfigDbOpsEnum op, int value, ref int result);
+ 
+ #if !PLATFORM_COMPACTFRAMEWORK
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config", CallingConvention = CallingConvention.Cdecl)]
+ #else
+     [DllImport(SQLITE_DLL, EntryPoint = "sqlite3_db_config")]
+ #endif
+-    internal static extern SQLiteErrorCode sqlite3_db_config_intptr_two_ints(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr ptr, int int0, int int1);
++    internal static extern SQLiteErrorCode sqlite3_db_config_intptr_two_ints_other(IntPtr db, SQLiteConfigDbOpsEnum op, IntPtr ptr, int int0, int int1);
++#endregion
+ 
+ #if !PLATFORM_COMPACTFRAMEWORK
+     [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
