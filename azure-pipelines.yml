@@ -6,11 +6,11 @@ parameters:
 - name: sqliteVersion
   displayName: Sqlite version number
   type: number
-  default: 3380500
+  default: 3400000
 - name: systemDataSqliteVersion
   displayName: System.Data.Sqlite version number
   type: string
-  default: 1.0.116.0
+  default: 1.0.117.0
 
 variables:
   minorVersion: $[counter('minorVersion', 1)]
