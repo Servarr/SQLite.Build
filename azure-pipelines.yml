@@ -32,7 +32,7 @@ stages:
       - job:
         displayName: Build Variables
         pool:
-          vmImage: 'ubuntu-20.04'
+          vmImage: 'ubuntu-22.04'
         steps:
           # Set the build name properly.  The 'name' property won't recursively expand so hack here:
           - bash: |
@@ -48,19 +48,19 @@ stages:
         matrix:
           linux-x64:
             osName: 'linux'
-            imageName: 'ubuntu-20.04'
+            imageName: 'ubuntu-22.04'
           osx-x64:
             osName: 'osx-x64'
-            imageName: 'macos-11'
+            imageName: 'macos-12'
           osx-arm64:
             osName: 'osx-arm64'
-            imageName: 'macos-11'
+            imageName: 'macos-12'
           win-x64:
              osName: 'win-x64'
-             imageName: 'windows-2019'
+             imageName: 'windows-2022'
           win-x86:
              osName: 'win-x86'
-             imageName: 'windows-2019'
+             imageName: 'windows-2022'
 
       pool:
         vmImage: $(imageName)
@@ -76,7 +76,7 @@ stages:
 
     - job: SystemDataSQLite
       pool:
-        vmImage: 'windows-2019'
+        vmImage: 'windows-2022'
       steps:
         - bash: ./get_system_data_sqlite.sh ${{ parameters.systemDataSqliteVersion }}
         - task: NuGetCommand@2
@@ -104,7 +104,7 @@ stages:
     jobs:
     - job: Nuget
       pool:
-        vmImage: 'windows-2019'
+        vmImage: 'windows-2022'
       steps:
       - task: DownloadPipelineArtifact@2
         inputs:
