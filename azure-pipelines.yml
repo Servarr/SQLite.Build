@@ -2,15 +2,15 @@ parameters:
 - name: sqliteYear
   displayName: Year of sqlite build
   type: number
-  default: 2022
+  default: 2023
 - name: sqliteVersion
   displayName: Sqlite version number
   type: number
-  default: 3400000
+  default: 3420000
 - name: systemDataSqliteVersion
   displayName: System.Data.Sqlite version number
   type: string
-  default: 1.0.117.0
+  default: 1.0.118.0
 
 variables:
   minorVersion: $[counter('minorVersion', 1)]
